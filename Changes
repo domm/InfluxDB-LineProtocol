@@ -1,0 +1,7 @@
+Changes for InfluxDB::LineProtocol
+
+1.000	
+	- first internal release
+    - extracted code from Validad internal tools
+
+
