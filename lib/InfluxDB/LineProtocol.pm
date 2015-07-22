@@ -129,3 +129,87 @@ sub line2data {
 
 __END__
 
+=head1 SYNOPSIS
+
+  use InfluxDB::LineProtocol qw(data2line line2data);
+
+  # convert some Perl data into InfluxDB LineProtocol
+  my $influx_line = data2line('measurement', 42);
+  my $influx_line = data2line('measurement', { cost => 42 });
+  my $influx_line = data2line('measurement', 42, { tag => 'foo'} );
+
+  # convert InfluxDB Line back into Perl
+  my ($measurement, $values, $tags, $timestamp) =
+    line2data("metric,location=eu,server=srv1 value=42 1437072299900001000");
+
+=head1 DESCRIPTION
+
+L<InfluxDB|https://influxdb.com> is a rather new time series database.
+Since version 0.9 the use their
+L<LineProtocol|https://influxdb.com/docs/v0.9/write_protocols/line.html>
+to write time series data into the database. This module allows you to
+generate a line from a datastructre, handling all the the annoying
+escaping and sorting for you. You can also use it to parse a line
+(maybe you want to add some tags to a line written by an app).
+
+Please read the InfluxDB docs so you understand how metrics, values
+and tags work.
+
+=head2 FUNCTIONS
+
+=head3 data2line
+
+ data2line($metric, $single_value);
+ data2line($metric, $values_hashref);
+ data2line($metric, $value, $tags_hashref);
+ data2line($metric, $value, $nanoseconds);
+ data2line($metric, $value, $tags_hashref, $nanoseconds);
+
+C<data2line> takes various parameters and converts them into an
+InfluxDB Line.
+
+C<metric> has to be valid InfluxDB measurment name. Required.
+
+C<value> can be either a scalar, which will be turned into
+"value=$value"; or a hashref, if you want to write several values (or
+a value with another name than "value"). Required.
+
+C<tags_hashref> is an optional hash of tag-names and tag-values.
+
+C<nanoseconds> is an optional integer representing nanoseconds since
+the epoch. If you do not pass it, C<InfluxDB::LineProtocol> will use
+C<Time::HiRes> to get the current timestamp.
+
+=head3 line2data
+
+  my ($metric, $value_hashref, $tags_hashref, $timestamp) = line2data( $line );
+
+C<line2data> parses an InfluxDB line and allways returns 4 values.
+
+C<tags_hashref> is undef if there are no tags!
+
+=head1 TODO
+
+=over
+
+=item * handle boolean values
+
+=item * handle negative values
+
+=item * handle exponential values
+
+=back
+
+=head1 SEE ALSO
+
+=over
+
+=item * L<InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
+
+=back
+
+=head1 THANKS
+
+Thanks to L<validad.com|http://www.validad.com/> for funding the
+development of this code.
+
