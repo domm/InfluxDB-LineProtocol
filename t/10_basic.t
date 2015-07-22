@@ -7,7 +7,7 @@ my $nano = join( '', @faketime ) * 1000;
 {
     no warnings 'redefine';
 
-    sub InfluxDB::LineProtocol::gettimeofday {
+    sub InfluxDB::LineProtocol::gettimeofday() {
         wantarray ? @faketime : join( '.', @faketime );
     }
 };
