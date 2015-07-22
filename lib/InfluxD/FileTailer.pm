@@ -20,9 +20,9 @@ has 'influx_port' =>
 has 'influx_db' => ( is => 'ro', isa => 'Str', required => 1 );
 
 has 'flush_size' =>
-    ( is => 'ro', isa => 'Int', required => 1, default => 100 );
+    ( is => 'ro', isa => 'Int', required => 1, default => 1000 );
 has 'flush_interval' =>
-    ( is => 'ro', isa => 'Int', required => 1, default => 5 );
+    ( is => 'ro', isa => 'Int', required => 1, default => 30 );
 has 'tags' => ( is => 'ro', isa => 'HashRef', predicate => 'has_tags' );
 has '_files' => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
 has '_loop' => ( is => 'ro', isa => 'IO::Async::Loop', lazy_build => 1 );
