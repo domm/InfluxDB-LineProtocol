@@ -57,31 +57,51 @@ sub run {
 
 sub send {
     my $self = shift;
-    $log->debugf( "Sending %i lines to influx", scalar @buffer );
+    my $second_try = shift;
+    my $new_buffer = shift;
+
+    my $to_send = $second_try ? $new_buffer : \@buffer;
+
+    $log->debugf( "Sending %i lines to influx", scalar @$to_send );
     my $res = Hijk::request(
         {   method       => "POST",
             host         => $self->influx_host,
             port         => $self->influx_port,
             path         => "/write",
             query_string => "db=" . $self->influx_db,
-            body         => join( '', @buffer ),
+            body         => join( '', @$to_send ),
         }
     );
     if ( $res->{status} != 204 ) {
-        $log->errorf(
-            "Could not send %i lines to influx: %s",
-            scalar @buffer,
-            $res->{body}
-        );
-        open( my $fh, ">>", $self->file . '.err' ) || die $!;
-        print $fh join( '', @buffer );
-        close $fh;
-        print 'X';
+        if (!$second_try
+            && (
+                (exists $res->{error} && $res->{error} & Hijk::Error::TIMEOUT)
+                ||
+                ($res->{status} == 500 && $res->{body} =~ /timeout/)
+            )
+        ) {
+            # wait a bit and try again with smaller packages
+            my @half = splice(@buffer,0,int(scalar @buffer / 2));
+            print ':';
+            $self->send(1, \@half);
+            $self->send(1, \@buffer);
+        }
+        else {
+            $log->errorf(
+                "Could not send %i lines to influx: %s",
+                scalar @buffer,
+                $res->{body}
+            );
+            open( my $fh, ">>", $self->file . '.err' ) || die $!;
+            print $fh join( '', @buffer );
+            close $fh;
+            print 'X';
+        }
     }
     else {
-        print '.';
+        print $second_try ? ',' : '.';
     }
-    @buffer = ();
+    @buffer = () unless $second_try;
 }
 
 __PACKAGE__->meta->make_immutable;
