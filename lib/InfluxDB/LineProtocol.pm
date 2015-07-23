@@ -145,12 +145,12 @@ __END__
 =head1 DESCRIPTION
 
 L<InfluxDB|https://influxdb.com> is a rather new time series database.
-Since version 0.9 the use their
+Since version 0.9 they use their
 L<LineProtocol|https://influxdb.com/docs/v0.9/write_protocols/line.html>
 to write time series data into the database. This module allows you to
-generate a line from a datastructre, handling all the the annoying
+generate such a line from a datastructure, handling all the the annoying
 escaping and sorting for you. You can also use it to parse a line
-(maybe you want to add some tags to a line written by an app).
+(maybe you want to add some tags to a line written by another app).
 
 Please read the InfluxDB docs so you understand how metrics, values
 and tags work.
@@ -165,7 +165,7 @@ and tags work.
  data2line($metric, $value, $nanoseconds);
  data2line($metric, $value, $tags_hashref, $nanoseconds);
 
-C<data2line> takes various parameters and converts them into an
+C<data2line> takes various parameters and converts them to an
 InfluxDB Line.
 
 C<metric> has to be valid InfluxDB measurment name. Required.
@@ -174,7 +174,7 @@ C<value> can be either a scalar, which will be turned into
 "value=$value"; or a hashref, if you want to write several values (or
 a value with another name than "value"). Required.
 
-C<tags_hashref> is an optional hash of tag-names and tag-values.
+C<tags_hashref> is an optional hashref of tag-names and tag-values.
 
 C<nanoseconds> is an optional integer representing nanoseconds since
 the epoch. If you do not pass it, C<InfluxDB::LineProtocol> will use
