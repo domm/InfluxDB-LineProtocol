@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
