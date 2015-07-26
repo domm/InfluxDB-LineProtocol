@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+use strict;
+use warnings;
+use 5.012;
 use Test::Most;
 use InfluxDB::LineProtocol qw(data2line line2data);
 
