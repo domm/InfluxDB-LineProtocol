@@ -99,6 +99,16 @@ my @tests = (
         [ 'metric', { value => 1.41 }, undef ]
     ],
     [   0,
+        [ 'metric', -1.41 ],
+        'metric value=-1.41',
+        [ 'metric', { value => -1.41 }, undef ]
+    ],
+    [   0,
+        [ 'metric', -42 ],
+        'metric value=-42',
+        [ 'metric', { value => -42 }, undef ]
+    ],
+    [   0,
         [ 'metric', 'foo"bar"' ],
         'metric value="foo\"bar\""',
         [ 'metric', { value => 'foo"bar"' }, undef ],
