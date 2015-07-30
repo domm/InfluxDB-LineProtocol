@@ -57,37 +57,23 @@ sub data2line {
         $timestamp *= 10 if length($timestamp) < 19;
     }
 
-    # $fields can be a hashref or a scalar
-    my $fields;
-    my $ref_values = ref($values);
-    if ( $ref_values eq 'HASH' ) {
-        my @fields;
-        foreach my $k ( sort keys %$values ) {
-            my $v = $values->{$k};
-            $k =~ s/([, ])/\\$1/g;
+    # If values is not a hashref, convert it into one
+    $values = { value => $values } if (not ref($values));
 
-            # TODO handle booleans
-            # TODO handle exponentials
-            if ( $v !~ /^-?\d+(?:\.\d+)?$/ ) {
-                $v =~ s/"/\\"/g;
-                $v = '"' . $v . '"';
-            }
-            push( @fields, $k . '=' . $v );
+    my @fields;
+    foreach my $k ( sort keys %$values ) {
+        my $v = $values->{$k};
+        $k =~ s/([, ])/\\$1/g;
+
+        # TODO handle booleans
+        # TODO handle exponentials
+        if ( $v !~ /^-?\d+(?:\.\d+)?$/ ) {
+            $v =~ s/"/\\"/g;
+            $v = '"' . $v . '"';
         }
-        $fields = join( ',', @fields );
+        push( @fields, $k . '=' . $v );
     }
-    elsif ( !$ref_values ) {
-        if ( $values !~ /^-?\d+(?:\.\d+)?$/ ) {
-            $values =~ s/([, ])/\\$1/g;
-            $fields = 'value="' . $values . '"';
-        }
-        else {
-            $fields = 'value=' . $values;
-        }
-    }
-    else {
-        croak("Invalid fields $ref_values");
-    }
+    my $fields = join( ',', @fields );
 
     return sprintf( "%s %s %s", $key, $fields, $timestamp );
 }
