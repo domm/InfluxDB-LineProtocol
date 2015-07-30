@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
@@ -67,8 +67,8 @@ sub data2line {
             $k =~ s/([, ])/\\$1/g;
 
             # TODO handle booleans
-            # TODO handle negative, exponentials
-            if ( $v =~ /[^\d\.]/ ) {
+            # TODO handle exponentials
+            if ( $v !~ /^-?\d+(?:\.\d+)?$/ ) {
                 $v =~ s/"/\\"/g;
                 $v = '"' . $v . '"';
             }
@@ -77,7 +77,7 @@ sub data2line {
         $fields = join( ',', @fields );
     }
     elsif ( !$ref_values ) {
-        if ( $values =~ /[^\d\.]/ ) {
+        if ( $values !~ /^-?\d+(?:\.\d+)?$/ ) {
             $values =~ s/([, ])/\\$1/g;
             $fields = 'value="' . $values . '"';
         }
@@ -193,8 +193,6 @@ C<tags_hashref> is undef if there are no tags!
 =over
 
 =item * handle boolean values
-
-=item * handle negative values
 
 =item * handle exponential values
 
