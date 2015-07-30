@@ -188,12 +188,24 @@ C<tags_hashref> is undef if there are no tags!
 
 =over
 
-=item * L<InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
+=item * L<InfluxDB|https://metacpan.org/pod/InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
 
 =back
 
 =head1 THANKS
 
-Thanks to L<validad.com|http://www.validad.com/> for funding the
+Thanks to
+
+=over
+
+=item *
+
+L<validad.com|http://www.validad.com/> for funding the
 development of this code.
+
+=item *
+
+L<Jose Luis Martinez|https://github.com/pplu> for implementing negative number support.
+
+=back
 

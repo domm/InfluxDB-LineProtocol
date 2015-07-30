@@ -1,7 +1,8 @@
 Changes for InfluxDB::LineProtocol
 
-1.002
-    - support for negative numbers
+1.002   2015-07-30T14:01:47
+    - support for negative numbers (Jose Luis Martinez)
+
 
 1.001   2015-07-26T17:54:04
     - tests require Perl 5.12
