@@ -1,5 +1,8 @@
 Changes for InfluxDB::LineProtocol
 
+1.003
+    - support for exponential numbers
+
 1.002
     - support for negative numbers
 
