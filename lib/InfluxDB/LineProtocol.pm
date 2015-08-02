@@ -65,8 +65,14 @@ sub data2line {
         my $v = $values->{$k};
         $k =~ s/([, ])/\\$1/g;
 
-        # TODO handle booleans
-        if ( $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
+        if (
+            # positive & negativ ints, exponentials, use Regexp::Common?
+            $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/
+            &&
+            # Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
+            $v !~ /^(?^:(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?))$/
+        )
+        {
             $v =~ s/"/\\"/g;
             $v = '"' . $v . '"';
         }
@@ -177,7 +183,8 @@ C<tags_hashref> is undef if there are no tags!
 
 =over
 
-=item * handle boolean values
+=item * check if tag sorting algorithm matches
+http://golang.org/pkg/bytes/#Compare
 
 =back
 
@@ -187,7 +194,8 @@ C<tags_hashref> is undef if there are no tags!
 
 =item *
 
-L<InfluxDB|https://metacpan.org/pod/InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
+L<InfluxDB|https://metacpan.org/pod/InfluxDB> provides access to the
+old 0.8 API. It also allows searching etc.
 
 =item *
 
@@ -213,7 +221,8 @@ development of this code.
 
 =item *
 
-L<Jose Luis Martinez|https://github.com/pplu> for implementing negative & exponential number support.
+L<Jose Luis Martinez|https://github.com/pplu> for implementing
+negative & exponential number support.
 
 =back
 

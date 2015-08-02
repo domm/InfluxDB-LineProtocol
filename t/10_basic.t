@@ -129,15 +129,33 @@ my @tests = (
         [ 'metric', 't' ],
         'metric value=t',
         [ 'metric', { value => 't' }, undef ],
-        'TODO'
+    ],
+    [
+        0,
+        [ 'metric', 'T' ],
+        'metric value=T',
+        [ 'metric', { value => 'T' }, undef ],
+    ],
+
+    [
+        0,
+        [ 'metric', 'FALSE' ],
+        'metric value=FALSE',
+        [ 'metric', { value => 'FALSE' }, undef ],
     ],
     [
         0,
         [ 'metric', 'False' ],
-        'metric value=False',
+        'metric value="False"',
         [ 'metric', { value => 'False' }, undef ],
-        'TODO'
     ],
+    [
+        0,
+        [ 'metric', 'tru' ],
+        'metric value="tru"',
+        [ 'metric', { value => 'tru' }, undef ],
+    ],
+    
     # escape values
     # tag types
     # escape tags
