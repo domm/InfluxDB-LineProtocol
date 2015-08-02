@@ -185,7 +185,18 @@ C<tags_hashref> is undef if there are no tags!
 
 =over
 
-=item * L<InfluxDB|https://metacpan.org/pod/InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
+=item *
+
+L<InfluxDB|https://metacpan.org/pod/InfluxDB> provides access to the old 0.8 API. It also allows searching etc.
+
+=item *
+
+L<AnyEvent::InfluxDB|https://metacpan.org/pod/AnyEvent::InfluxDB> - An
+asynchronous library for InfluxDB time-series database. Does not
+implement escaping etc, so if you want to use AnyEvent::InfluxDB to
+send data to InfluxDB you can use InfluxDB::LineProtocol to convert
+your measurement data structure before sending it via
+AnyEvent::InfluxDB.
 
 =back
 
@@ -202,7 +213,7 @@ development of this code.
 
 =item *
 
-L<Jose Luis Martinez|https://github.com/pplu> for implementing negative number support.
+L<Jose Luis Martinez|https://github.com/pplu> for implementing negative & exponential number support.
 
 =back
 

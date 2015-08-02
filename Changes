@@ -1,6 +1,7 @@
 Changes for InfluxDB::LineProtocol
 
-1.003
+1.003	2015-08-02 12:38:56
+    - added SEE-ALSO link to AnyEvent-InfluxDB
     - support for exponential numbers (Jose Luis Martinez)
 
 
