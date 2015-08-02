@@ -66,8 +66,7 @@ sub data2line {
         $k =~ s/([, ])/\\$1/g;
 
         # TODO handle booleans
-        # TODO handle exponentials
-        if ( $v !~ /^-?\d+(?:\.\d+)?$/ ) {
+        if ( $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
             $v =~ s/"/\\"/g;
             $v = '"' . $v . '"';
         }
@@ -179,8 +178,6 @@ C<tags_hashref> is undef if there are no tags!
 =over
 
 =item * handle boolean values
-
-=item * handle exponential values
 
 =back
 

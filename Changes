@@ -1,5 +1,9 @@
 Changes for InfluxDB::LineProtocol
 
+1.003
+    - support for exponential numbers (Jose Luis Martinez)
+
+
 1.002   2015-07-30T14:01:47
     - support for negative numbers (Jose Luis Martinez)
 
@@ -10,7 +14,7 @@ Changes for InfluxDB::LineProtocol
 
 
 1.000	2015-07-22T12:27:45
-	- first internal release
+    - first internal release
     - extracted code from Validad internal tools
 
 
