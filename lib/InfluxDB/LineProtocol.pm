@@ -89,7 +89,10 @@ sub line2data {
 
     $line =~ s/\\ /ESCAPEDSPACE/g;
     $line =~ s/\\,/ESCAPEDCOMMA/g;
-    my ( $key, $fields, $timestamp ) = split( / /, $line );
+    $line =~ s/\\"/ESCAPEDDBLQUOTE/g;
+
+    $line=~/^(.*?) (.*) (.*)$/;
+    my ($key, $fields, $timestamp) = ( $1, $2, $3);
 
     my ( $measurment, @taglist ) = split( /,/, $key );
     $measurment =~ s/ESCAPEDSPACE/ /g;
@@ -104,12 +107,17 @@ sub line2data {
     }
 
     my $values;
+    my @strings;
+    if ($fields =~ /"/) {
+        my $cnt=0;
+        $fields=~s/"(.*?)"/push(@strings, $1); 'ESCAPEDSTRING_'.$cnt++;/ge;
+    }
     foreach my $valset ( split( /,/, $fields ) ) {
         $valset =~ s/ESCAPEDSPACE/ /g;
         $valset =~ s/ESCAPEDCOMMA/,/g;
         my ( $k, $v ) = split( /=/, $valset );
-        $v =~ s/^"//;
-        $v =~ s/"$//;
+        $v =~ s/ESCAPEDSTRING_(\d+)/$strings[$1]/ge;
+        $v =~ s/ESCAPEDDBLQUOTE/"/g;
         $values->{$k} = $v;
     }
 

@@ -155,12 +155,49 @@ my @tests = (
         'metric value="tru"',
         [ 'metric', { value => 'tru' }, undef ],
     ],
-    
+
     # escape values
+    [
+        0,
+        ['metric', "some value"],
+        'metric value="some value"',
+        ['metric', { value=>'some value' } , undef],
+    ],
+    [
+        0,
+        ['metric', {a => "some value", b=>'another value'}],
+        'metric a="some value",b="another value"',
+        ['metric', { a=>'some value', b=>'another value' } , undef],
+    ],
+    [
+        0,
+        ['metric', {a => "some value", b=>'another, value'}],
+        'metric a="some value",b="another, value"',
+        ['metric', { a=>'some value', b=>'another, value' } , undef],
+    ],
+    [
+        0,
+        ['metric', 'some "value"'],
+        'metric value="some \"value\""',
+        ['metric', { value=>'some "value"' } , undef],
+    ],
+
     # tag types
     # escape tags
+    [
+        0,
+        ['metric',42,{ 'tag space, comma'=>'value space, comma' }],
+        'metric,tag\ space\,\ comma=value\ space\,\ comma value=42',
+        ['metric',{value=>42},{ 'tag space, comma'=>'value space, comma' }],
+    ],
 
     # Examples from https://influxdb.com/docs/v0.9/write_protocols/write_syntax.html
+    [
+        1,
+        ['disk_free', {free_space=>442221834240, disk_type=>'SSD'},1435362189575692182],
+        'disk_free disk_type="SSD",free_space=442221834240 1435362189575692182',
+        ['disk_free', {free_space=>442221834240, disk_type=>'SSD'},undef,1435362189575692182],
+    ],
     [
         1,
         ["total disk free",442221834240,{ volumes=>'/net,/home,/'},1435362189575692182],
@@ -185,8 +222,8 @@ my @tests = (
         '"measurement\ with\ quotes",tag\ key\ with\ spaces=tag\,value\,with"commas" field_key\\\\="string field value, only \" need be quoted"',
         ['"measurement with quotes"',{ 'field_key\\\\'=>'string field value, only " need be quoted'}, { 'tag key with spaces' =>  'tag,value,with"commas"'} ],
     ],
-
 );
+
 
 while ( my ( $i, $case ) = each @tests ) {
     my ( $explicit_timestamp, $in, $raw_line, $out, $testtag ) = @$case;
