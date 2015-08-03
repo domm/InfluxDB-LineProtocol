@@ -1,5 +1,12 @@
 Changes for InfluxDB::LineProtocol
 
+1.004   2015-08-03T23:09:51
+    - field value escaping
+    - more tests
+    - skip negative exponent test on MSWin32
+    - make boolean regex work with older perls
+
+
 1.003	2015-08-02 12:38:56
     - support for boolean values
     - added SEE-ALSO link to AnyEvent-InfluxDB
