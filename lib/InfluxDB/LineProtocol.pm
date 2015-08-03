@@ -69,8 +69,8 @@ sub data2line {
             # positive & negativ ints, exponentials, use Regexp::Common?
             $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/
             &&
-            # Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
-            $v !~ /^(?^:(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?))$/
+            # perl 5.12 Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
+            $v !~ /^(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?)$/
         )
         {
             $v =~ s/"/\\"/g;
