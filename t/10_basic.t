@@ -159,6 +159,33 @@ my @tests = (
     # escape values
     # tag types
     # escape tags
+
+    # Examples from https://influxdb.com/docs/v0.9/write_protocols/write_syntax.html
+    [
+        1,
+        ["total disk free",442221834240,{ volumes=>'/net,/home,/'},1435362189575692182],
+        'total\ disk\ free,volumes=/net\,/home\,/ value=442221834240 1435362189575692182',
+        ["total disk free",{value=>442221834240},{ volumes=>'/net,/home,/'},1435362189575692182],
+    ],
+    [
+        0,
+        ['disk_free',442221834240,{ path=>'C:\Windows' }],
+        'disk_free,path=C:\Windows value=442221834240',
+        ['disk_free',{value=>442221834240},{ path=>'C:\Windows' }],
+    ],
+    [
+        0,
+        ['disk_free',{ value=> 442221834240, 'working directories'=>'C:\My Documents\Stuff for examples,C:\My Documents'}],
+        'disk_free value=442221834240,working\ directories="C:\My Documents\Stuff for examples,C:\My Documents"',
+        ['disk_free',{ value=> 442221834240, 'working directories'=>'C:\My Documents\Stuff for examples,C:\My Documents'}, undef],
+    ],
+    [
+        0,
+        ['"measurement with quotes"',{ 'field_key\\\\'=>'string field value, only " need be quoted'} , { 'tag key with spaces' =>  'tag,value,with"commas"'} ],
+        '"measurement\ with\ quotes",tag\ key\ with\ spaces=tag\,value\,with"commas" field_key\\\\="string field value, only \" need be quoted"',
+        ['"measurement with quotes"',{ 'field_key\\\\'=>'string field value, only " need be quoted'}, { 'tag key with spaces' =>  'tag,value,with"commas"'} ],
+    ],
+
 );
 
 while ( my ( $i, $case ) = each @tests ) {
