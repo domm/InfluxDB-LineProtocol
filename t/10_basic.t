@@ -111,7 +111,8 @@ my @tests = (
     [   0,
         [ 'metric', 7.51696501241595e-05 ],
         'metric value=7.51696501241595e-05',
-        [ 'metric', { value => 7.51696501241595e-05 }, undef ]
+        [ 'metric', { value => 7.51696501241595e-05 }, undef ],
+        [ 'SKIP', sub { $^O eq 'MSWin32' }, 'negative exponentials are strange on windows' ]
     ],
     [   0,
         [ 'metric', '7.51696501241595e05' ],
@@ -122,7 +123,7 @@ my @tests = (
         [ 'metric', 'foo"bar"' ],
         'metric value="foo\"bar\""',
         [ 'metric', { value => 'foo"bar"' }, undef ],
-        'TODO'
+        [ 'TODO' ]
     ],
     [
         0,
@@ -136,7 +137,6 @@ my @tests = (
         'metric value=T',
         [ 'metric', { value => 'T' }, undef ],
     ],
-
     [
         0,
         [ 'metric', 'FALSE' ],
@@ -162,7 +162,7 @@ my @tests = (
 );
 
 while ( my ( $i, $case ) = each @tests ) {
-    my ( $explicit_timestamp, $in, $raw_line, $out, $is_todo ) = @$case;
+    my ( $explicit_timestamp, $in, $raw_line, $out, $testtag ) = @$case;
     explain("case $i: $raw_line");
 
     my $expected_line;
@@ -174,15 +174,24 @@ while ( my ( $i, $case ) = each @tests ) {
         push(@$out,$nano);
     }
 
-    if ($is_todo) {
-        TODO: {
-            local $TODO = 'not implemented yet';
-            _do_test($i, $in, $expected_line, $out);
-        };
+    if ($testtag) {
+        if ($testtag->[0] eq 'TODO') {
+            TODO: {
+                local $TODO = 'not implemented yet';
+                _do_test($i, $in, $expected_line, $out);
+            };
+            next;
+        }
+        elsif ($testtag->[0] eq 'SKIP' && $testtag->[1]->()) {
+            SKIP: {
+                skip $testtag->[2], 2;
+                _do_test($i, $in, $expected_line, $out);
+            };
+            next;
+        }
     }
-    else {
-        _do_test($i, $in, $expected_line, $out);
-    }
+
+    _do_test($i, $in, $expected_line, $out);
 }
 
 sub _do_test {
