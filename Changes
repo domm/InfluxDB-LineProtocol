@@ -1,0 +1,29 @@
+Changes for InfluxDB::LineProtocol
+
+1.004   2015-08-03T23:09:51
+    - field value escaping
+    - more tests
+    - skip negative exponent test on MSWin32
+    - make boolean regex work with older perls
+
+
+1.003	2015-08-02 12:38:56
+    - support for boolean values
+    - added SEE-ALSO link to AnyEvent-InfluxDB
+    - support for exponential numbers (Jose Luis Martinez)
+
+
+1.002   2015-07-30T14:01:47
+    - support for negative numbers (Jose Luis Martinez)
+
+
+1.001   2015-07-26T17:54:04
+    - tests require Perl 5.12
+    - fix some typos in docs
+
+
+1.000	2015-07-22T12:27:45
+    - first internal release
+    - extracted code from Validad internal tools
+
+
