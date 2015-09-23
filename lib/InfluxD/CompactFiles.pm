@@ -8,7 +8,8 @@ use Carp qw(croak);
 use Log::Any qw($log);
 use File::Spec::Functions;
 use Sys::Hostname qw(hostname);
-use Measure::Everything::InfluxDB::Utils qw(line2data data2line);
+use InfluxDB::LineProtocol qw(line2data data2line);
+
 
 has 'dir'    => ( is => 'ro', isa => 'Str',     required  => 1 );
 has 'tags'   => ( is => 'ro', isa => 'HashRef', predicate => 'has_tags' );
