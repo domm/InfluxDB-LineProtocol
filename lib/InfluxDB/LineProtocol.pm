@@ -53,8 +53,8 @@ sub data2line {
         }
     }
     else {
-        $timestamp = join( '', gettimeofday() ) * 1000;
-        $timestamp *= 10 if length($timestamp) < 19;
+        $timestamp = join( '', gettimeofday(), '000' );
+        $timestamp .= '0' if length($timestamp) < 19;
     }
 
     # If values is not a hashref, convert it into one
