@@ -9,7 +9,8 @@ use IO::Async::FileStream;
 use IO::Async::Loop;
 use Hijk ();
 use Carp qw(croak);
-use Measure::Everything::InfluxDB::Utils qw(line2data data2line);
+#use Measure::Everything::InfluxDB::Utils qw(line2data data2line);
+use InfluxDB::LineProtocol qw(line2data data2line);
 use Log::Any qw($log);
 use File::Spec::Functions;
 
