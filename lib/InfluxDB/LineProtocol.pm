@@ -6,13 +6,159 @@ our $VERSION = '1.004';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
-use Exporter qw(import);
 use Carp qw(croak);
 use Time::HiRes qw(gettimeofday);
 
-our @EXPORT_OK = qw(data2line line2data);
+my %versions = (
+    'v0.9.2' => '_0_9_2',
+);
+
+sub import {
+    my $class = shift;
+    my $caller = caller();
+
+
+    my @to_export;
+    my $version;
+    foreach my $param (@_) {
+        if ($param eq 'data2line' || $param eq 'line2data') {
+            push(@to_export,$param);
+        }
+        if ($param =~ /^v[\d\.]+$/ && $versions{$param}) {
+            $version = $versions{$param};
+        }
+    }
+
+    foreach my $function (@to_export) {
+        my $target = $function;
+        $function = '_'.$function.$version if $version;
+
+        {
+            no strict 'refs';
+            *{"$caller\::$target"} = \&$function;
+        }
+    }
+
+}
 
 sub data2line {
+    my ( $measurment, $values, $tags, $timestamp ) = @_;
+
+    if ( @_ == 1 ) {
+        # no $fields, so assume we already got a line
+        return $measurment;
+    }
+
+    my $key = $measurment;
+    $key =~ s/([, ])/\\$1/g;
+
+    # $tags has to be a hashref, if it's not, we dont have tags, so it's the timestamp
+    if ( defined $tags ) {
+        if ( ref($tags) eq 'HASH' ) {
+            my @tags;
+            foreach my $k ( sort keys %$tags )
+            {    # Influx wants the tags presorted
+                # TODO check if sorting algorithm matches
+                #      http://golang.org/pkg/bytes/#Compare
+                my $v = $tags->{$k};
+                $k =~ s/([, ])/\\$1/g;
+                $v =~ s/([, ])/\\$1/g;
+                push( @tags, $k . '=' . $v );
+            }
+            $key .= join( ',', '', @tags ) if @tags;
+        }
+        elsif ( !ref($tags) ) {
+            $timestamp = $tags;
+        }
+    }
+
+    if ($timestamp) {
+        croak("$timestamp does not look like an epoch timestamp")
+            unless $timestamp =~ /^\d+$/;
+        if ( length($timestamp) < 19 ) {
+            my $missing = 19 - length($timestamp);
+            my $zeros   = 0 x $missing;
+            $timestamp .= $zeros;
+        }
+    }
+    else {
+        $timestamp = join( '', gettimeofday(), '000' );
+        $timestamp .= '0' if length($timestamp) < 19;
+    }
+
+    # If values is not a hashref, convert it into one
+    $values = { value => $values } if (not ref($values));
+
+    my @fields;
+    foreach my $k ( sort keys %$values ) {
+        my $v = $values->{$k};
+        $k =~ s/([, ])/\\$1/g;
+
+        if (
+            # positive & negativ ints, exponentials, use Regexp::Common?
+            $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/
+            &&
+            # perl 5.12 Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
+            $v !~ /^(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?)$/
+        )
+        {
+            $v =~ s/"/\\"/g;
+            $v = '"' . $v . '"';
+        }
+        elsif ($v=~/^-?\d+$/) { # looks like int
+            $v.='i';
+        }
+        push( @fields, $k . '=' . $v );
+    }
+    my $fields = join( ',', @fields );
+
+    return sprintf( "%s %s %s", $key, $fields, $timestamp );
+}
+
+
+sub line2data {
+    my $line = shift;
+    chomp($line);
+
+    $line =~ s/\\ /ESCAPEDSPACE/g;
+    $line =~ s/\\,/ESCAPEDCOMMA/g;
+    $line =~ s/\\"/ESCAPEDDBLQUOTE/g;
+
+    $line=~/^(.*?) (.*) (.*)$/;
+    my ($key, $fields, $timestamp) = ( $1, $2, $3);
+
+    my ( $measurment, @taglist ) = split( /,/, $key );
+    $measurment =~ s/ESCAPEDSPACE/ /g;
+    $measurment =~ s/ESCAPEDCOMMA/,/g;
+
+    my $tags;
+    foreach my $tagset (@taglist) {
+        $tagset =~ s/ESCAPEDSPACE/ /g;
+        $tagset =~ s/ESCAPEDCOMMA/,/g;
+        my ( $k, $v ) = split( /=/, $tagset );
+        $tags->{$k} = $v;
+    }
+
+    my $values;
+    my @strings;
+    if ($fields =~ /"/) {
+        my $cnt=0;
+        $fields=~s/"(.*?)"/push(@strings, $1); 'ESCAPEDSTRING_'.$cnt++;/ge;
+    }
+    foreach my $valset ( split( /,/, $fields ) ) {
+        $valset =~ s/ESCAPEDSPACE/ /g;
+        $valset =~ s/ESCAPEDCOMMA/,/g;
+        my ( $k, $v ) = split( /=/, $valset );
+        $v =~ s/ESCAPEDSTRING_(\d+)/$strings[$1]/ge;
+        $v =~ s/ESCAPEDDBLQUOTE/"/g;
+        $v =~ s/^(-?\d+)i$/$1/;
+        $values->{$k} = $v;
+    }
+
+    return ( $measurment, $values, $tags, $timestamp );
+}
+
+sub _data2line_0_9_2 {
     my ( $measurment, $values, $tags, $timestamp ) = @_;
 
     if ( @_ == 1 ) {
@@ -83,7 +229,7 @@ sub data2line {
     return sprintf( "%s %s %s", $key, $fields, $timestamp );
 }
 
-sub line2data {
+sub _line2data_0_9_2 {
     my $line = shift;
     chomp($line);
 
@@ -154,6 +300,11 @@ escaping and sorting for you. You can also use it to parse a line
 Please read the InfluxDB docs so you understand how metrics, values
 and tags work.
 
+C<InfluxDB::LineProtocol> will always try to implement the most
+current version of the InfluxDB line protocol, while allowing you to
+also get the old behaviour. Currently we support C<0.9.3> per default,
+and C<0.9.2> if you ask nicely.
+
 =head2 FUNCTIONS
 
 =head3 data2line
@@ -186,6 +337,30 @@ C<Time::HiRes> to get the current timestamp.
 C<line2data> parses an InfluxDB line and allways returns 4 values.
 
 C<tags_hashref> is undef if there are no tags!
+
+=head1 LOADING LEGACY PROTOCOL VERSIONS
+
+To use an old version of the line protocol, specify the version you
+want when loading C<InfluxDB::LineProtocol>:
+
+  use InfluxDB::LineProtocol qw(v0.9.2 data2line);
+
+You will get a version of C<data2line> that conforms to the C<0.9.2>
+version of the line protocol.
+
+Currently supported version are:
+
+=over
+
+=item * 0.9.3
+
+default, no need to specify anything
+
+=item * 0.9.2
+
+load via C<v0.9.2>
+
+=back
 
 =head1 TODO
 
@@ -230,7 +405,14 @@ development of this code.
 =item *
 
 L<Jose Luis Martinez|https://github.com/pplu> for implementing
-negative & exponential number support.
+negative & exponential number support and pointing out the change in
+the line protocol in 0.9.3.
+
+=item *
+
+L<mvgrimes|https://github.com/mvgrimes> for fixing a bug when
+nanosecond timestamps cause some Perls to render the timestamp in
+scientific notation.
 
 =back
 

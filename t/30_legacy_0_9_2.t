@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use 5.012;
 use Test::Most;
-use InfluxDB::LineProtocol qw(data2line line2data);
+use InfluxDB::LineProtocol qw(v0.9.2 data2line line2data);
 
 my @faketime = ( 1437072205, 500681 );
 my $nano = join( '', @faketime ) * 1000;
@@ -26,64 +26,64 @@ my @tests = (
     # some basic tests without timestamps
     [   0,
         [ 'metric', 42 ],
-        'metric value=42i',
+        'metric value=42',
         [ 'metric', { value => 42 }, undef ]
     ],
     [
         0, ['metric', {hit=>1, cost=>42}],
-        'metric cost=42i,hit=1i',
+        'metric cost=42,hit=1',
         [ 'metric', {hit=>1, cost=>42}, undef ]
     ],
     [
         0, ['metric', 42, {server=>'srv1',location=>'eu'}],
-        'metric,location=eu,server=srv1 value=42i',
+        'metric,location=eu,server=srv1 value=42',
         [ 'metric', {value=>42}, {server=>'srv1',location=>'eu'} ]
     ],
     [
         0, ['metric', {cost=>42}, {server=>'srv1',location=>'eu'}],
-        'metric,location=eu,server=srv1 cost=42i',
+        'metric,location=eu,server=srv1 cost=42',
         [ 'metric', {cost=>42}, {server=>'srv1',location=>'eu'} ]
     ],
     # now with timestamps
     [   1,
         [ 'metric', 42, 1437072299900001000 ],
-        'metric value=42i 1437072299900001000',
+        'metric value=42 1437072299900001000',
         [ 'metric', { value => 42 }, undef, 1437072299900001000 ]
     ],
     [
         1, ['metric', {hit=>1, cost=>42},1437072299900001000],
-        'metric cost=42i,hit=1i 1437072299900001000',
+        'metric cost=42,hit=1 1437072299900001000',
         [ 'metric', {hit=>1, cost=>42},undef, 1437072299900001000 ]
     ],
     [
         1, ['metric', 42, , {server=>'srv1',location=>'eu'},1437072299900001000],
-        'metric,location=eu,server=srv1 value=42i 1437072299900001000',
+        'metric,location=eu,server=srv1 value=42 1437072299900001000',
         [ 'metric', {value=>42}, {server=>'srv1',location=>'eu'}, 1437072299900001000 ]
     ],
     [
         1, ['metric', {cost=>42}, {server=>'srv1',location=>'eu'} ,1437072299900001000],
-        'metric,location=eu,server=srv1 cost=42i 1437072299900001000',
+        'metric,location=eu,server=srv1 cost=42 1437072299900001000',
         [ 'metric', {cost=>42}, {server=>'srv1',location=>'eu'},1437072299900001000 ]
     ],
     # weird measurment names
     [   0,
         [ 'metric with space', 42 ],
-        'metric\ with\ space value=42i',
+        'metric\ with\ space value=42',
         [ 'metric with space', { value => '42' }, undef ]
     ],
     [   0,
         [ 'metric,with,comma', 42 ],
-        'metric\,with\,comma value=42i',
+        'metric\,with\,comma value=42',
         [ 'metric,with,comma', { value => '42' }, undef ]
     ],
     [   0,
         [ 'metric,with,comma', 42 , { tag=>'foo' }],
-        'metric\,with\,comma,tag=foo value=42i',
+        'metric\,with\,comma,tag=foo value=42',
         [ 'metric,with,comma', { value => '42' }, { tag=>'foo' } ]
     ],
     [   0,
         [ 'metric\with\backslash', 42 ],
-        'metric\with\backslash value=42i',
+        'metric\with\backslash value=42',
         [ 'metric\with\backslash', { value => '42' }, undef ]
     ],
 
@@ -105,7 +105,7 @@ my @tests = (
     ],
     [   0,
         [ 'metric', -42 ],
-        'metric value=-42i',
+        'metric value=-42',
         [ 'metric', { value => -42 }, undef ]
     ],
     [   0,
@@ -186,7 +186,7 @@ my @tests = (
     [
         0,
         ['metric',42,{ 'tag space, comma'=>'value space, comma' }],
-        'metric,tag\ space\,\ comma=value\ space\,\ comma value=42i',
+        'metric,tag\ space\,\ comma=value\ space\,\ comma value=42',
         ['metric',{value=>42},{ 'tag space, comma'=>'value space, comma' }],
     ],
 
@@ -194,25 +194,25 @@ my @tests = (
     [
         1,
         ['disk_free', {free_space=>442221834240, disk_type=>'SSD'},1435362189575692182],
-        'disk_free disk_type="SSD",free_space=442221834240i 1435362189575692182',
+        'disk_free disk_type="SSD",free_space=442221834240 1435362189575692182',
         ['disk_free', {free_space=>442221834240, disk_type=>'SSD'},undef,1435362189575692182],
     ],
     [
         1,
         ["total disk free",442221834240,{ volumes=>'/net,/home,/'},1435362189575692182],
-        'total\ disk\ free,volumes=/net\,/home\,/ value=442221834240i 1435362189575692182',
+        'total\ disk\ free,volumes=/net\,/home\,/ value=442221834240 1435362189575692182',
         ["total disk free",{value=>442221834240},{ volumes=>'/net,/home,/'},1435362189575692182],
     ],
     [
         0,
         ['disk_free',442221834240,{ path=>'C:\Windows' }],
-        'disk_free,path=C:\Windows value=442221834240i',
+        'disk_free,path=C:\Windows value=442221834240',
         ['disk_free',{value=>442221834240},{ path=>'C:\Windows' }],
     ],
     [
         0,
         ['disk_free',{ value=> 442221834240, 'working directories'=>'C:\My Documents\Stuff for examples,C:\My Documents'}],
-        'disk_free value=442221834240i,working\ directories="C:\My Documents\Stuff for examples,C:\My Documents"',
+        'disk_free value=442221834240,working\ directories="C:\My Documents\Stuff for examples,C:\My Documents"',
         ['disk_free',{ value=> 442221834240, 'working directories'=>'C:\My Documents\Stuff for examples,C:\My Documents'}, undef],
     ],
     [
@@ -221,13 +221,6 @@ my @tests = (
         '"measurement\ with\ quotes",tag\ key\ with\ spaces=tag\,value\,with"commas" field_key\\\\="string field value, only \" need be quoted"',
         ['"measurement with quotes"',{ 'field_key\\\\'=>'string field value, only " need be quoted'}, { 'tag key with spaces' =>  'tag,value,with"commas"'} ],
     ],
-    # 0.9.3 integer in tag and value
-    [
-        0, ['metric', {int=>42, float=>0.5}, {inttag=>8,floattag=>13.13}],
-        'metric,floattag=13.13,inttag=8 float=0.5,int=42i',
-        [ 'metric', {int=>42, float=>0.5}, {inttag=>8,floattag=>13.13} ]
-    ],
-
 );
 
 
