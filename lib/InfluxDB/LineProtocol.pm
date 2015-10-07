@@ -82,8 +82,10 @@ sub data2line {
         }
     }
     else {
-        $timestamp = join( '', gettimeofday(), '000' );
-        $timestamp .= '0' if length($timestamp) < 19;
+        # Get time of day returns (seconds, microseconds)
+        # $timestamp needs to be nanoseconds
+        # it must also be a string to avoid conversion to sci notations
+        $timestamp = sprintf "%s%06d000", gettimeofday();
     }
 
     # If values is not a hashref, convert it into one
