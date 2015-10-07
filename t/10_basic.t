@@ -65,7 +65,7 @@ my @tests = (
         'metric,location=eu,server=srv1 cost=42i 1437072299900001000',
         [ 'metric', {cost=>42}, {server=>'srv1',location=>'eu'},1437072299900001000 ]
     ],
-    # weird measurment names
+    # weird measurement names
     [   0,
         [ 'metric with space', 42 ],
         'metric\ with\ space value=42i',
