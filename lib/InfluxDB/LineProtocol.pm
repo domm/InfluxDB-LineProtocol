@@ -180,6 +180,7 @@ sub _data2line_0_9_2 {
                 # TODO check if sorting algorithm matches
                 #      http://golang.org/pkg/bytes/#Compare
                 my $v = $tags->{$k};
+                next unless defined $v;
                 $k =~ s/([, ])/\\$1/g;
                 $v =~ s/([, ])/\\$1/g;
                 push( @tags, $k . '=' . $v );
