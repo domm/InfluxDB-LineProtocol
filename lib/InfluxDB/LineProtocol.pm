@@ -13,14 +13,14 @@ use Time::HiRes qw(gettimeofday);
 our @EXPORT_OK = qw(data2line line2data);
 
 sub data2line {
-    my ( $measurment, $values, $tags, $timestamp ) = @_;
+    my ( $measurement, $values, $tags, $timestamp ) = @_;
 
     if ( @_ == 1 ) {
         # no $fields, so assume we already got a line
-        return $measurment;
+        return $measurement;
     }
 
-    my $key = $measurment;
+    my $key = $measurement;
     $key =~ s/([, ])/\\$1/g;
 
     # $tags has to be a hashref, if it's not, we dont have tags, so it's the timestamp
@@ -95,9 +95,9 @@ sub line2data {
     $line=~/^(.*?) (.*) (.*)$/;
     my ($key, $fields, $timestamp) = ( $1, $2, $3);
 
-    my ( $measurment, @taglist ) = split( /,/, $key );
-    $measurment =~ s/ESCAPEDSPACE/ /g;
-    $measurment =~ s/ESCAPEDCOMMA/,/g;
+    my ( $measurement, @taglist ) = split( /,/, $key );
+    $measurement =~ s/ESCAPEDSPACE/ /g;
+    $measurement =~ s/ESCAPEDCOMMA/,/g;
 
     my $tags;
     foreach my $tagset (@taglist) {
@@ -122,7 +122,7 @@ sub line2data {
         $values->{$k} = $v;
     }
 
-    return ( $measurment, $values, $tags, $timestamp );
+    return ( $measurement, $values, $tags, $timestamp );
 }
 
 1;
@@ -168,7 +168,7 @@ and tags work.
 C<data2line> takes various parameters and converts them to an
 InfluxDB Line.
 
-C<metric> has to be valid InfluxDB measurment name. Required.
+C<metric> has to be valid InfluxDB measurement name. Required.
 
 C<value> can be either a scalar, which will be turned into
 "value=$value"; or a hashref, if you want to write several values (or

@@ -171,7 +171,7 @@ sub send {
 sub add_tags_to_line {
     my ( $self, $line ) = @_;
 
-    my ( $measurment, $values, $tags, $timestamp ) = line2data($line);
+    my ( $measurement, $values, $tags, $timestamp ) = line2data($line);
     my $combined_tags;
     if ($tags) {
         $combined_tags = { %$tags, %{ $self->tags } };
@@ -179,7 +179,7 @@ sub add_tags_to_line {
     else {
         $combined_tags = $tags;
     }
-    return data2line( $measurment, $values, $combined_tags, $timestamp );
+    return data2line( $measurement, $values, $combined_tags, $timestamp );
 }
 
 __PACKAGE__->meta->make_immutable;
