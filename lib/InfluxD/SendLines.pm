@@ -8,12 +8,15 @@ use Carp qw(croak);
 use Log::Any qw($log);
 use File::Spec::Functions;
 use Hijk ();
+use MIME::Base64 qw/encode_base64/;
 
 has 'file'        => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_host' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'influx_port' =>
     ( is => 'ro', isa => 'Int', default => 8086, required => 1 );
 has 'influx_db'   => ( is => 'ro', isa => 'Str', required => 1 );
+has 'influx_username'   => ( is => 'ro', isa => 'Str', required => 0 );
+has 'influx_password'   => ( is => 'ro', isa => 'Str', required => 0 );
 has 'buffer_size' => ( is => 'ro', isa => 'Int', default  => 1000 );
 
 $| = 1;
@@ -62,6 +65,19 @@ sub send {
 
     my $to_send = $second_try ? $new_buffer : \@buffer;
 
+    my @headers;
+    if ((grep { length($_) > 0 } $self->influx_username, $self->influx_password) == 2) {
+
+(        my $encoded =  encode_base64(join(":", $self->influx_username, $self->influx_password,)) ) =~ s/\n$// ;
+
+        push(@headers, "Authorization" => "Basic " . $encoded );
+    }
+
+    my %head = ();
+    if (@headers) {
+        $head{head} = \@headers
+    }
+
     $log->debugf( "Sending %i lines to influx", scalar @$to_send );
     my $res = Hijk::request(
         {   method       => "POST",
@@ -70,6 +86,7 @@ sub send {
             path         => "/write",
             query_string => "db=" . $self->influx_db,
             body         => join( '', @$to_send ),
+            %head,
         }
     );
     if ( $res->{status} != 204 ) {
