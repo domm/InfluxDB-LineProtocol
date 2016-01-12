@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.005';
+our $VERSION = '1.006';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
@@ -97,20 +97,24 @@ sub data2line {
         my $v = $values->{$k};
         $k =~ s/([, ])/\\$1/g;
 
-        if (
-            # positive & negativ ints, exponentials, use Regexp::Common?
-            $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/
-            &&
-            # perl 5.12 Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
-            $v !~ /^(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?)$/
-        )
-        {
+        if ( $v =~ /^(-?\d+)(?:i?)$/ ) {
+            $v = $1 . 'i';
+        }
+        elsif ( $v =~ /^[Ff](?:ALSE|alse)?$/ ) {
+            $v = 'FALSE';
+        }
+        elsif ( $v =~ /^[Tt](?:RUE|rue)?$/ ) {
+            $v = 'TRUE';
+        }
+        elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
+            # pass it on, no mod
+        }
+        else {
+            # string actually, but this should be quoted differently?
             $v =~ s/"/\\"/g;
             $v = '"' . $v . '"';
         }
-        elsif ($v=~/^-?\d+$/) { # looks like int
-            $v.='i';
-        }
+
         push( @fields, $k . '=' . $v );
     }
     my $fields = join( ',', @fields );
