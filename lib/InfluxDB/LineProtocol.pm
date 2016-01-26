@@ -41,6 +41,39 @@ sub import {
 
 }
 
+sub _format_key {
+    my $k = shift;
+
+    $k =~ s/([, ])/\\$1/g;
+
+    return $k;
+}
+
+sub _format_value {
+    my $k = shift;
+    my $v = shift;
+
+    if ( $v =~ /^(-?\d+)(?:i?)$/ ) {
+        $v = $1 . 'i';
+    }
+    elsif ( $v =~ /^[Ff](?:ALSE|alse)?$/ ) {
+        $v = 'FALSE';
+    }
+    elsif ( $v =~ /^[Tt](?:RUE|rue)?$/ ) {
+        $v = 'TRUE';
+    }
+    elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
+        # pass it on, no mod
+    }
+    else {
+        # string actually, but this should be quoted differently?
+        $v =~ s/"/\\"/g;
+        $v = '"' . $v . '"';
+    }
+
+    return $v;
+}
+
 sub data2line {
     my ( $measurement, $values, $tags, $timestamp ) = @_;
 
@@ -95,27 +128,11 @@ sub data2line {
     my @fields;
     foreach my $k ( sort keys %$values ) {
         my $v = $values->{$k};
-        $k =~ s/([, ])/\\$1/g;
 
-        if ( $v =~ /^(-?\d+)(?:i?)$/ ) {
-            $v = $1 . 'i';
-        }
-        elsif ( $v =~ /^[Ff](?:ALSE|alse)?$/ ) {
-            $v = 'FALSE';
-        }
-        elsif ( $v =~ /^[Tt](?:RUE|rue)?$/ ) {
-            $v = 'TRUE';
-        }
-        elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
-            # pass it on, no mod
-        }
-        else {
-            # string actually, but this should be quoted differently?
-            $v =~ s/"/\\"/g;
-            $v = '"' . $v . '"';
-        }
+        my $esc_k = _format_key($k);
+        my $esc_v = _format_value($k, $v);
 
-        push( @fields, $k . '=' . $v );
+        push( @fields, $esc_k . '=' . $esc_v );
     }
     my $fields = join( ',', @fields );
 
