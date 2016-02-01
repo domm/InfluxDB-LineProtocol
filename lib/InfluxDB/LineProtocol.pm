@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.007';
+our $VERSION = '1.006';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
@@ -41,39 +41,6 @@ sub import {
 
 }
 
-sub _format_key {
-    my $k = shift;
-
-    $k =~ s/([, ])/\\$1/g;
-
-    return $k;
-}
-
-sub _format_value {
-    my $k = shift;
-    my $v = shift;
-
-    if ( $v =~ /^(-?\d+)(?:i?)$/ ) {
-        $v = $1 . 'i';
-    }
-    elsif ( $v =~ /^[Ff](?:ALSE|alse)?$/ ) {
-        $v = 'FALSE';
-    }
-    elsif ( $v =~ /^[Tt](?:RUE|rue)?$/ ) {
-        $v = 'TRUE';
-    }
-    elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
-        # pass it on, no mod
-    }
-    else {
-        # string actually, but this should be quoted differently?
-        $v =~ s/"/\\"/g;
-        $v = '"' . $v . '"';
-    }
-
-    return $v;
-}
-
 sub data2line {
     my ( $measurement, $values, $tags, $timestamp ) = @_;
 
@@ -94,7 +61,6 @@ sub data2line {
                 # TODO check if sorting algorithm matches
                 #      http://golang.org/pkg/bytes/#Compare
                 my $v = $tags->{$k};
-                next unless defined $v;
                 $k =~ s/([, ])/\\$1/g;
                 $v =~ s/([, ])/\\$1/g;
                 push( @tags, $k . '=' . $v );
@@ -128,11 +94,23 @@ sub data2line {
     my @fields;
     foreach my $k ( sort keys %$values ) {
         my $v = $values->{$k};
+        $k =~ s/([, ])/\\$1/g;
 
-        my $esc_k = _format_key($k);
-        my $esc_v = _format_value($k, $v);
-
-        push( @fields, $esc_k . '=' . $esc_v );
+        if (
+            # positive & negativ ints, exponentials, use Regexp::Common?
+            $v !~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/
+            &&
+            # perl 5.12 Regexp::Assemble->new->add(qw(t T true TRUE f F false FALSE))->re;
+            $v !~ /^(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?)$/
+        )
+        {
+            $v =~ s/"/\\"/g;
+            $v = '"' . $v . '"';
+        }
+        elsif ($v=~/^-?\d+$/) { # looks like int
+            $v.='i';
+        }
+        push( @fields, $k . '=' . $v );
     }
     my $fields = join( ',', @fields );
 
