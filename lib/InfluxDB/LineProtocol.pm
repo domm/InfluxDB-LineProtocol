@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.007';
+our $VERSION = '1.008';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
@@ -259,7 +259,7 @@ sub _data2line_0_9_2 {
     my @fields;
     foreach my $k ( sort keys %$values ) {
         my $v = $values->{$k};
-        $k =~ s/([, ])/\\$1/g;
+        my $esc_k = _format_key($k);
 
         if (
             # positive & negativ ints, exponentials, use Regexp::Common?
@@ -272,7 +272,7 @@ sub _data2line_0_9_2 {
             $v =~ s/"/\\"/g;
             $v = '"' . $v . '"';
         }
-        push( @fields, $k . '=' . $v );
+        push( @fields, $esc_k . '=' . $v );
     }
     my $fields = join( ',', @fields );
 
