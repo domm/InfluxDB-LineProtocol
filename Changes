@@ -5,7 +5,6 @@ Changes for InfluxDB::LineProtocol
     - add precision support (Thomas Klausner)
     - feat(extract) formatting methods
 
-
 1.006   2015-11-18T08:42:31
     - fix(typo) (Thomas Klausner)
     - Ignore and do not send undefined values (koki)
