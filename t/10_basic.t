@@ -25,6 +25,11 @@ my $nano = join( '', @faketime ) * 1000;
 my @tests = (
     # some basic tests without timestamps
     [   0,
+        [ 'metric', { cost => '423i' } ],
+        'metric cost=423i',
+        [ 'metric', { cost => 423 }, undef ]
+    ],
+    [   0,
         [ 'metric', 42 ],
         'metric value=42i',
         [ 'metric', { value => 42 }, undef ]
@@ -127,14 +132,14 @@ my @tests = (
     [
         0,
         [ 'metric', 't' ],
-        'metric value=t',
-        [ 'metric', { value => 't' }, undef ],
+        'metric value=TRUE',
+        [ 'metric', { value => 'TRUE' }, undef ],
     ],
     [
         0,
         [ 'metric', 'T' ],
-        'metric value=T',
-        [ 'metric', { value => 'T' }, undef ],
+        'metric value=TRUE',
+        [ 'metric', { value => 'TRUE' }, undef ],
     ],
     [
         0,
@@ -144,9 +149,15 @@ my @tests = (
     ],
     [
         0,
+        [ 'metric', 'F' ],
+        'metric value=FALSE',
+        [ 'metric', { value => 'FALSE' }, undef ],
+    ],
+    [
+        0,
         [ 'metric', 'False' ],
-        'metric value="False"',
-        [ 'metric', { value => 'False' }, undef ],
+        'metric value=FALSE',
+        [ 'metric', { value => 'FALSE' }, undef ],
     ],
     [
         0,
