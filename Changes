@@ -1,5 +1,9 @@
 Changes for InfluxDB::LineProtocol
 
+1.007   2016-06-08T01:49:03
+    - add precision support (Thomas Klausner)
+
+
 1.006   2015-11-18T08:42:31
     - fix(typo) (Thomas Klausner)
     - Ignore and do not send undefined values (koki)
