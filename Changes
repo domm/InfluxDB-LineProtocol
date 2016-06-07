@@ -2,6 +2,8 @@ Changes for InfluxDB::LineProtocol
 
 1.007   2016-01-26T11:55:55
     - feat(extract) formatting methods
+    - add precision support (Thomas Klausner)
+
 
 1.006   2015-11-18T08:42:31
     - fix(typo) (Thomas Klausner)
