@@ -17,12 +17,15 @@ sub import {
     my $class = shift;
     my $caller = caller();
 
-
     my @to_export;
     my $version;
+    my $precision = 'ns';
     foreach my $param (@_) {
         if ($param eq 'data2line' || $param eq 'line2data') {
             push(@to_export,$param);
+        }
+        if ($param =~ /^precision=(\w+)$/) {
+            $precision = $1;
         }
         if ($param =~ /^v[\d\.]+$/ && $versions{$param}) {
             $version = $versions{$param};
@@ -37,6 +40,13 @@ sub import {
             no strict 'refs';
             *{"$caller\::$target"} = \&$function;
         }
+    }
+
+    # set up ts_$precision
+    {
+            no strict 'refs';
+            my $selected = 'ts_'.$precision;
+            *{"$caller\::get_ts"} = \&$selected;
     }
 
 }
@@ -76,6 +86,7 @@ sub _format_value {
 
 sub data2line {
     my ( $measurement, $values, $tags, $timestamp ) = @_;
+    my $caller = caller();
 
     if ( @_ == 1 ) {
         # no $fields, so assume we already got a line
@@ -106,21 +117,9 @@ sub data2line {
         }
     }
 
-    if ($timestamp) {
-        croak("$timestamp does not look like an epoch timestamp")
-            unless $timestamp =~ /^\d+$/;
-        if ( length($timestamp) < 19 ) {
-            my $missing = 19 - length($timestamp);
-            my $zeros   = 0 x $missing;
-            $timestamp .= $zeros;
-        }
-    }
-    else {
-        # Get time of day returns (seconds, microseconds)
-        # $timestamp needs to be nanoseconds
-        # it must also be a string to avoid conversion to sci notations
-        $timestamp = sprintf "%s%06d000", gettimeofday();
-    }
+    $timestamp ||= $caller->get_ts();
+    croak("$timestamp does not look like an epoch timestamp")
+        unless $timestamp =~ /^\d+$/;
 
     # If values is not a hashref, convert it into one
     $values = { value => $values } if (not ref($values));
@@ -137,6 +136,33 @@ sub data2line {
     my $fields = join( ',', @fields );
 
     return sprintf( "%s %s %s", $key, $fields, $timestamp );
+}
+
+sub ts_h {
+    my $now = time();
+    return int $now / 3600;
+}
+
+sub ts_m {
+    my $now = time();
+    return int $now / 60;
+}
+
+sub ts_s {
+    return scalar time();
+}
+
+sub ts_ms {
+    my ($s,$us) = gettimeofday();
+    return sprintf("%s%03d", $s,substr($us,0,3));
+}
+
+sub ts_us {
+    return sprintf("%s%06d", gettimeofday());
+}
+
+sub ts_ns {
+    return sprintf("%s%06d000", gettimeofday());
 }
 
 sub line2data {
@@ -361,6 +387,21 @@ C<Time::HiRes> to get the current timestamp.
 C<line2data> parses an InfluxDB line and allways returns 4 values.
 
 C<tags_hashref> is undef if there are no tags!
+
+=head1 PRECISION
+
+InfluxDB support different timestamp precisions:
+
+Nanosecond (ns, the default), microseconds (us), milliseconds (ms),
+seconds (s), minutes (m) and hours (h). If you do not want to generate
+lines using nanoseconds (which might be a good idea, because InfluxDB
+uses less space and has better performance if you choose a smaller
+precision), you can specify the wanted precision on load of
+C<InfluxDB::LineProtocol>:
+
+  use InfluxDB::LineProtocol->import(qw(data2line precision=ms));
+
+Please note that yo have to tell InfluxDB the precision when posting lines to C</write>!
 
 =head1 LOADING LEGACY PROTOCOL VERSIONS
 
