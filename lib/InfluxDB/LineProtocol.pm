@@ -352,8 +352,8 @@ and tags work.
 
 C<InfluxDB::LineProtocol> will always try to implement the most
 current version of the InfluxDB line protocol, while allowing you to
-also get the old behaviour. Currently we support C<0.9.3> per default,
-and C<0.9.2> if you ask nicely.
+also get the old behaviour. Currently we support C<0.9.3> and newer
+per default, and C<0.9.2> if you ask nicely.
 
 =head2 FUNCTIONS
 
@@ -417,7 +417,7 @@ Currently supported version are:
 
 =over
 
-=item * 0.9.3
+=item * 0.9.3 and newer
 
 default, no need to specify anything
 
