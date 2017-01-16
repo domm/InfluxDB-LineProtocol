@@ -1,5 +1,10 @@
 Changes for InfluxDB::LineProtocol
 
+1.009   2017-01-16T17:07:19
+    - Fix spelling mistakes (Guillem Jover)
+    - Add minimum perl version using dzil plugin (Mohammad S Anwar)
+
+
 1.008	2016-09-06T15:05:31
     - clean up git mess (Thomas Klausner)
 
