@@ -191,6 +191,11 @@ my @tests = (
         'metric value="some \"value\""',
         ['metric', { value=>'some "value"' } , undef],
     ],
+    [   0,
+        [ 'metric', 'some \"value\"' ],
+        'metric value="some \\\\\"value\\\\\""',
+        [ 'metric', { value => 'some \"value\"' }, undef ],
+    ],
 
     # tag types
     # escape tags
