@@ -77,7 +77,7 @@ sub _format_value {
     }
     else {
         # string actually, but this should be quoted differently?
-        $v =~ s/"/\\"/g;
+        $v =~ s/(["\\])/\\$1/g;
         $v = '"' . $v . '"';
     }
 
@@ -96,7 +96,7 @@ sub data2line {
     my $key = $measurement;
     $key =~ s/([, ])/\\$1/g;
 
-    # $tags has to be a hashref, if it's not, we dont have tags, so it's the timestamp
+    # $tags has to be a hashref, if it's not, we don't have tags, so it's the timestamp
     if ( defined $tags ) {
         if ( ref($tags) eq 'HASH' ) {
             my @tags;
@@ -172,6 +172,7 @@ sub line2data {
     $line =~ s/\\ /ESCAPEDSPACE/g;
     $line =~ s/\\,/ESCAPEDCOMMA/g;
     $line =~ s/\\"/ESCAPEDDBLQUOTE/g;
+    $line =~ s/\\\\/ESCAPEDBACKSLASH/g;
 
     $line=~/^(.*?) (.*) (.*)$/;
     my ($key, $fields, $timestamp) = ( $1, $2, $3);
@@ -200,7 +201,9 @@ sub line2data {
         my ( $k, $v ) = split( /=/, $valset );
         $v =~ s/ESCAPEDSTRING_(\d+)/$strings[$1]/ge;
         $v =~ s/ESCAPEDDBLQUOTE/"/g;
+        $v =~ s/ESCAPEDBACKSLASH/\\/g;
         $v =~ s/^(-?\d+)i$/$1/;
+        $k =~ s/ESCAPEDBACKSLASH/\\\\/g;
         $values->{$k} = $v;
     }
 
@@ -218,7 +221,7 @@ sub _data2line_0_9_2 {
     my $key = $measurement;
     $key =~ s/([, ])/\\$1/g;
 
-    # $tags has to be a hashref, if it's not, we dont have tags, so it's the timestamp
+    # $tags has to be a hashref, if it's not, we don't have tags, so it's the timestamp
     if ( defined $tags ) {
         if ( ref($tags) eq 'HASH' ) {
             my @tags;
@@ -343,7 +346,7 @@ L<InfluxDB|https://influxdb.com> is a rather new time series database.
 Since version 0.9 they use their
 L<LineProtocol|https://influxdb.com/docs/v0.9/write_protocols/line.html>
 to write time series data into the database. This module allows you to
-generate such a line from a datastructure, handling all the the annoying
+generate such a line from a datastructure, handling all the annoying
 escaping and sorting for you. You can also use it to parse a line
 (maybe you want to add some tags to a line written by another app).
 
@@ -384,7 +387,7 @@ C<Time::HiRes> to get the current timestamp.
 
   my ($metric, $value_hashref, $tags_hashref, $timestamp) = line2data( $line );
 
-C<line2data> parses an InfluxDB line and allways returns 4 values.
+C<line2data> parses an InfluxDB line and always returns 4 values.
 
 C<tags_hashref> is undef if there are no tags!
 
