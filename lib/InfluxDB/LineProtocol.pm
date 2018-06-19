@@ -272,7 +272,7 @@ sub _data2line_0_9_2 {
             $v !~ /^(?:F(?:ALSE)?|f(?:alse)?|T(?:RUE)?|t(?:rue)?)$/
         )
         {
-            $v =~ s/(["\\])/\\$1/g;
+            $v =~ s/"/\\"/g;
             $v = '"' . $v . '"';
         }
         push( @fields, $esc_k . '=' . $v );
@@ -289,7 +289,6 @@ sub _line2data_0_9_2 {
     $line =~ s/\\ /ESCAPEDSPACE/g;
     $line =~ s/\\,/ESCAPEDCOMMA/g;
     $line =~ s/\\"/ESCAPEDDBLQUOTE/g;
-    $line =~ s/\\\\/ESCAPEDBACKSLASH/g;
 
     $line=~/^(.*?) (.*) (.*)$/;
     my ($key, $fields, $timestamp) = ( $1, $2, $3);
@@ -318,8 +317,6 @@ sub _line2data_0_9_2 {
         my ( $k, $v ) = split( /=/, $valset );
         $v =~ s/ESCAPEDSTRING_(\d+)/$strings[$1]/ge;
         $v =~ s/ESCAPEDDBLQUOTE/"/g;
-        $v =~ s/ESCAPEDBACKSLASH/\\/g;
-        $k =~ s/ESCAPEDBACKSLASH/\\\\/g;
         $values->{$k} = $v;
     }
 
