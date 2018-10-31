@@ -435,7 +435,7 @@ load via C<v0.9.2>
 =over
 
 =item * check if tag sorting algorithm matches
-http://golang.org/pkg/bytes/#Compare
+L<http://golang.org/pkg/bytes/#Compare>
 
 =back
 
