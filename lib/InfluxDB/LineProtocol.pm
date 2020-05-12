@@ -72,7 +72,7 @@ sub _format_value {
     elsif ( $v =~ /^[Tt](?:RUE|rue)?$/ ) {
         $v = 'TRUE';
     }
-    elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e-?\d+)?$/ ) {
+    elsif ( $v =~ /^-?\d+(?:\.\d+)?(?:e(?:-|\+)?\d+)?$/ ) {
         # pass it on, no mod
     }
     else {
