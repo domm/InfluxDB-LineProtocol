@@ -2,7 +2,7 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.011';
+our $VERSION = '1.012';
 
 # ABSTRACT: Write and read InfluxDB LineProtocol
 
@@ -481,6 +481,11 @@ the line protocol in 0.9.3.
 L<mvgrimes|https://github.com/mvgrimes> for fixing a bug when
 nanosecond timestamps cause some Perls to render the timestamp in
 scientific notation.
+
+=item *
+
+L<Adrian Popa|https://github.com/mad-ady> for fixing a bug when
+handling large scientific notation data.
 
 =back
 
