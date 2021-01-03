@@ -2,9 +2,9 @@ package InfluxDB::LineProtocol;
 use strict;
 use warnings;
 
-our $VERSION = '1.012';
-
 # ABSTRACT: Write and read InfluxDB LineProtocol
+
+# VERSION
 
 use Carp qw(croak);
 use Time::HiRes qw(gettimeofday);
