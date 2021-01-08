@@ -1,6 +1,8 @@
 Changes for InfluxDB::LineProtocol
 
 {{$NEXT}}
+
+1.013     2021-01-03 16:55:02+01:00
     - dist housekeeping: github issues,
       Dist::Zilla::PluginBundle::Author::DOMM
 
