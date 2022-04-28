@@ -1,6 +1,8 @@
 Changes for InfluxDB::LineProtocol
 
 {{$NEXT}}
+
+1.015     2022-04-28 08:56:35+02:00
     - Escape equals sign as required by Influx >= v1.0 (Zachary Bull)
 
 
