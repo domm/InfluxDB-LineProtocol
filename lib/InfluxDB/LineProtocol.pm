@@ -520,5 +520,9 @@ scientific notation.
 L<Adrian Popa|https://github.com/mad-ady> for fixing a bug when
 handling large scientific notation data.
 
+=item *
+
+L< zachary-bull |https://github.com/zachary-bull> for adding code to escape C<=> in tag keys.
+
 =back
 

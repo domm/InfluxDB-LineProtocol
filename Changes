@@ -1,6 +1,8 @@
 Changes for InfluxDB::LineProtocol
 
 {{$NEXT}}
+    - Escape equals sign as required by Influx >= v1.0 (Zachary Bull)
+
 
 1.014     2021-01-08 21:43:06+01:00
     - work around scientific notation problems reported in
