@@ -522,7 +522,7 @@ handling large scientific notation data.
 
 =item *
 
-L< zachary-bull |https://github.com/zachary-bull> for adding code to escape C<=> in tag keys.
+L<zachary-bull|https://github.com/zachary-bull> for adding code to escape C<=> in tag keys.
 
 =back
 
